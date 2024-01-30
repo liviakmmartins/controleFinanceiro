@@ -26,7 +26,7 @@ const addTransactionIntoDOM = transaction => {
     //vai transformar os numeros em valor absoluto sem sinal - ou +
     const amountWithoutOperator = Math.abs(transaction.amount)
 
-    //criano novo elemento html - li 
+    //criano novo elemento html - li (<li></li>)
     const li = document.createElement('li')
 
     //adicionando a classe no elemento li
@@ -44,10 +44,13 @@ const addTransactionIntoDOM = transaction => {
 
 //map:ele faz a leitura de todos os elementos do array, executa uma função callback para cada um e devolve como retorno um novo array.
 const updateBalanceValues = () => {
-    const transactionsAmounts = dummyTransactions.map(transaction =>transaction.amount)
+    const transactionsAmounts = 
+    dummyTransactions.map(transaction => transaction.amount)
 
     //reduce:Ela permite que você execute uma função de redução, em cada elemento de um determinado array, passando o valor retornado da operação anterior como um acumulador.0==valor inicial do acumulator.toFixed:quandos decimais
-    const total = transactionsAmounts.reduce ((accumulator,transaction)=> accumulator+transaction,0).toFixed(2)
+
+
+    const total = transactionsAmounts.reduce((accumulator, transaction) => accumulator+transaction, 0).toFixed(2)
 
     //filter:filtra os elementos de um array de acordo com determinados critério
     const income = transactionsAmounts
@@ -55,16 +58,21 @@ const updateBalanceValues = () => {
     .reduce((accumulator,value) => accumulator + value,0)
     .toFixed(2)
 
-    const expense = transactionsAmounts
+    const expense = Math.abs(transactionsAmounts
     .filter(value => value < 0)
-    .reduce((accumulator,value) => accumulator + value,0)
+    .reduce((accumulator,value) => accumulator + value,0))
     .toFixed(2)
 
 
-    console.log(expense)
+    balanceDisplay.textContent = `R$ ${total}`
+    incomeDisplay.textContent = `R$ ${income}`
+    expenseDisplay.textContent = `R$ ${expense}`
 }
 
 //Quando a página for carregada, vai adicionar as transações no DOM
 const init = () =>{
-    dummyTransactions.forEach(addTransactionIntoDOM);
+    dummyTransactions.forEach(addTransactionIntoDOM)
+    updateBalanceValues()
 }
+
+init()
