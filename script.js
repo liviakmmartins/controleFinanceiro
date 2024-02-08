@@ -7,14 +7,25 @@ const expenseDisplay = document.querySelector('#money-minus')//#money-minus:id d
 
 const balanceDisplay = document.querySelector('#balance') //#balance: id do h1 que exibe o saldo total
 
-//definindo um array de objetos para simular algumas transações
-dummyTransactions = [
-    {id: 1, name:'Bolo de Brigadeiro', amount: -20},
-    {id: 2, name:'Salario', amount: 300},
-    {id: 3, name:'Torta de frango', amount: -10},
-    {id: 4, name:'Violão', amount: -150}
-]
+const form = document.querySelector('#form')//id do form no html
 
+const inputTransactionName = document.querySelector('#text')//id do input no html
+
+const inputTransactionAmount = document.querySelector('#amount')//id do input do valor da transaçãono html
+
+const localStorageTransactions = JSON.parse(localStorage
+    .getItem('transactions'))//vai resultar no valor da transactions do objeto da localStorage
+
+let transactions = localStorage
+    .getItem('transactions') !== null ? localStorageTransactions : []
+
+const removeTransaction = ID => {
+    transactions = transactions.filter(transaction => 
+        transaction.id !== ID )//vai retornar um novo array todas as transações que tem o id diferente do id que vai ser clicado 
+
+        constUpdateLocalStorage()
+    init()
+}
 
 //criou uma função transaction e dentro dela inseriu a li
 
@@ -34,34 +45,44 @@ const addTransactionIntoDOM = transaction => {
 
     //vai se convertida pra html
     li.innerHTML = 
-    `${transaction.name} <span>${operator} R$ ${amountWithoutOperator}</span><button class="delete-btn">x</button>
-    `
+        `${transaction.name} <span>${operator} R$ ${amountWithoutOperator}
+        </span>
+        <button class="delete-btn" onClick = "removeTransaction(${transaction.id})">
+            x
+        </button>
+        `
 
     //adicionando na ul, o li como o ultimo filho da ul
     transactionsUl.append(li)
 
 }
 
+const getExpenses = transactionsAmounts => Math.abs(transactionsAmounts
+    .filter(value => value < 0)
+    .reduce((accumulator,value) => accumulator + value,0))
+    .toFixed(2)
+
+
+    const getIncomes = transactionsAmounts => Math.abs(transactionsAmounts
+        .filter(value => value > 0)
+        .reduce((accumulator,value) => accumulator + value,0))
+        .toFixed(2)
+
+    const getTotal = transactionsAmounts => transactionsAmounts.reduce((accumulator, transaction) => accumulator+transaction, 0).toFixed(2)
+
 //map:ele faz a leitura de todos os elementos do array, executa uma função callback para cada um e devolve como retorno um novo array.
 const updateBalanceValues = () => {
-    const transactionsAmounts = 
-    dummyTransactions.map(transaction => transaction.amount)
+    const transactionsAmounts = transactions.map(transaction => transaction.amount)
 
     //reduce:Ela permite que você execute uma função de redução, em cada elemento de um determinado array, passando o valor retornado da operação anterior como um acumulador.0==valor inicial do acumulator.toFixed:quandos decimais
 
 
-    const total = transactionsAmounts.reduce((accumulator, transaction) => accumulator+transaction, 0).toFixed(2)
+    const total = getTotal(transactionsAmounts)
 
     //filter:filtra os elementos de um array de acordo com determinados critério
-    const income = transactionsAmounts
-    .filter(value => value > 0)
-    .reduce((accumulator,value) => accumulator + value,0)
-    .toFixed(2)
+    const income = getIncomes(transactionsAmounts)
 
-    const expense = Math.abs(transactionsAmounts
-    .filter(value => value < 0)
-    .reduce((accumulator,value) => accumulator + value,0))
-    .toFixed(2)
+    const expense = getExpenses(transactionsAmounts)
 
 
     balanceDisplay.textContent = `R$ ${total}`
@@ -71,8 +92,50 @@ const updateBalanceValues = () => {
 
 //Quando a página for carregada, vai adicionar as transações no DOM
 const init = () =>{
-    dummyTransactions.forEach(addTransactionIntoDOM)
+    transactionsUl.innerHTML=''//para não ficar adicionando as transações novamemente quando inserir uma nova
+    transactions.forEach(addTransactionIntoDOM)
     updateBalanceValues()
 }
 
 init()
+
+constUpdateLocalStorage = () => {
+    localStorage.setItem('transactions', JSON.stringify(transactions))//vai salvar uma informação no localStorage. json: converter array de objetos em strings
+}
+
+const generateId = ()=>Math.round(Math.random()*1000)//vai gerar id aleatorio de 0 a 1000
+
+const addTransactionArray = (transactionName,transactionAmount) => {
+    transactions.push({
+        id: 1, 
+        name:transactionName, 
+        amount: Number(transactionAmount)//vai transformar de string para numero pois o toFixed() so funciona com numero
+    })
+    
+}
+
+const cleanInputs = () => {
+    inputTransactionName.value =''
+    inputTransactionAmount.value =''
+}
+
+const handleFormSubmit = event =>{
+
+    event.preventDefault()//vai evitar que o form seja enviado
+
+    const transactionName = inputTransactionName.value.trim()
+    const transactionAmount = inputTransactionAmount.value.trim()
+    const isSomeInputEmpty = transactionName === '' || transactionAmount === ''
+
+    if (isSomeInputEmpty){
+        alert('Por favor, preencha o nome e o valor da transação')
+        return
+    }
+    addTransactionArray(transactionName,transactionAmount)
+    init()
+    constUpdateLocalStorage()
+
+
+}
+
+form.addEventListener('submit', handleFormSubmit)
