@@ -2,7 +2,7 @@
 Sistema de controle de despesas, onde o clinte pode inserir transações com nome e valor, escolher se são despesas ou receitas e ter acesso ao saldo todal.
 
 Deploy do projeto:
-https://liviakmmartins.github.io/controleFinanceiro/
+https://liviakobayashii.github.io/controleFinanceiro/
 
 ## Tecnologias utilizadas
 * Html
