@@ -19,13 +19,14 @@ const localStorageTransactions = JSON.parse(localStorage
 let transactions = localStorage
     .getItem('transactions') !== null ? localStorageTransactions : []
 
-const removeTransaction = ID => {
-    transactions = transactions.filter(transaction => 
-        transaction.id !== ID )//vai retornar um novo array todas as transações que tem o id diferente do id que vai ser clicado 
 
-        constUpdateLocalStorage()
-    init()
-}
+const removeTransaction = (ID) => {
+    transactions = transactions.filter(transaction => 
+        transaction.id !== parseInt(ID)); // Convertendo ID para número antes de comparar
+
+    UpdateLocalStorage();
+    init();
+};
 
 //criou uma função transaction e dentro dela inseriu a li
 
@@ -47,7 +48,7 @@ const addTransactionIntoDOM = transaction => {
     li.innerHTML = 
         `${transaction.name} <span>${operator} R$ ${amountWithoutOperator}
         </span>
-        <button class="delete-btn" onClick = "removeTransaction(${transaction.id})">
+        <button class="delete-btn" onclick="removeTransaction(${transaction.id})">
             x
         </button>
         `
@@ -99,25 +100,25 @@ const init = () =>{
 
 init()
 
-constUpdateLocalStorage = () => {
+const UpdateLocalStorage = () => {
     localStorage.setItem('transactions', JSON.stringify(transactions))//vai salvar uma informação no localStorage. json: converter array de objetos em strings
 }
 
-const generateId = ()=>Math.round(Math.random()*1000)//vai gerar id aleatorio de 0 a 1000
+const generateId = () => Math.round(Math.random()*1000)//vai gerar id aleatorio de 0 a 1000
 
-const addTransactionArray = (transactionName,transactionAmount) => {
+const addTransactionArray = (transactionName, transactionAmount) => {
+    const id = generateId() // Gera um ID único
     transactions.push({
-        id: 1, 
-        name:transactionName, 
-        amount: Number(transactionAmount)//vai transformar de string para numero pois o toFixed() so funciona com numero
+        id: id, 
+        name: transactionName, 
+        amount: Number(transactionAmount)
     })
-    
 }
-
 const cleanInputs = () => {
     inputTransactionName.value =''
     inputTransactionAmount.value =''
 }
+
 
 const handleFormSubmit = event =>{
 
@@ -133,9 +134,9 @@ const handleFormSubmit = event =>{
     }
     addTransactionArray(transactionName,transactionAmount)
     init()
-    constUpdateLocalStorage()
+    UpdateLocalStorage()
 
-
+    cleanInputs()
 }
 
 form.addEventListener('submit', handleFormSubmit)
